@@ -20,16 +20,32 @@ var TiddlyFox = {
 		// Get the document and window
 		var doc = event.originalTarget,
 			win = doc.defaultView;
-		// If it is a TiddlyWiki classic
-		if(TiddlyFox.isTiddlyWikiClassic(doc,win)) {
-			if(confirm("TiddlyFox: Enabling TiddlyWiki file saving capability for:\n" + doc.location)) {
-				TiddlyFox.injectScript(doc);
-				TiddlyFox.injectMessageBox(doc);
+		// Get a reference to local storage
+		var url = "http://127.0.0.1",
+			ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService),
+			ssm = Components.classes["@mozilla.org/scriptsecuritymanager;1"].getService(Components.interfaces.nsIScriptSecurityManager),
+			dsm = Components.classes["@mozilla.org/dom/storagemanager;1"].getService(Components.interfaces.nsIDOMStorageManager),
+			uri = ios.newURI(url,"",null),
+			principal = ssm.getCodebasePrincipal(uri),
+			storage = dsm.getLocalStorageForPrincipal(principal,"");
+		// Check if this is a TiddlyWiki document
+		var isTiddlyWikiClassic = TiddlyFox.isTiddlyWikiClassic(doc,win),
+			isTiddlyWiki5 = TiddlyFox.isTiddlyWiki5(doc,win),
+			approved = false;
+		// Prompt the user if they haven't already approved this document
+		if(isTiddlyWikiClassic || isTiddlyWiki5) {
+			if(storage.getItem("TiddlyFoxApproved_" + doc.location) === "approved") {
+				approved = true;
+			} else {
+				approved = confirm("TiddlyFox: Do you want to enable TiddlyWiki file saving capability for " + doc.location);
 			}
-		// If it is a TiddlyWiki5
-		} else if(TiddlyFox.isTiddlyWiki5(doc,win)) {
-			if(confirm("TiddlyFox: Enabling TiddlyWiki5 file saving capability for:\n" + doc.location)) {
-				TiddlyFox.injectMessageBox(doc);
+		}
+		if(approved) {
+			// Save the approval for next time
+			storage.setItem("TiddlyFoxApproved_" + doc.location,"approved");
+			TiddlyFox.injectScript(doc); // Always inject the script
+			if(isTiddlyWikiClassic) {
+				TiddlyFox.injectMessageBox(doc); // Only inject the message box for TW classic
 			}
 		}
 	},
