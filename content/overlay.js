@@ -10,6 +10,10 @@ var TiddlyFox = {
 	onLoad: function(event) {
 		// Register a page load event
 		var appcontent = document.getElementById("appcontent");
+		// Further check for Firefox on Android (fennec)
+		if(!appcontent) {
+			appcontent = document.getElementById("browsers"); // Fennec
+		}
 		if(appcontent){
 			appcontent.addEventListener("DOMContentLoaded",TiddlyFox.onPageLoad,true);
 		}
