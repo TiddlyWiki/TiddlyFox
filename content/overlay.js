@@ -96,11 +96,14 @@ var TiddlyFox = {
 				file.create(0,0x01B4);// 0x01B4 = 0664
 			var out = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance(Components.interfaces.nsIFileOutputStream);
 			out.init(file,0x22,0x04,null);
-			out.write(content,content.length);
-			out.flush();
+			var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].createInstance(Components.interfaces.nsIConverterOutputStream);
+			converter.init(out, "UTF-8", 0, "?".charCodeAt(0));
+			converter.writeString(content);
+			converter.close();
 			out.close();
 			return true;
 		} catch(ex) {
+			alert(ex);
 			return false;
 		}
 	},
