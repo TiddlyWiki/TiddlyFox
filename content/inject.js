@@ -43,8 +43,13 @@ The JavaScript in this file is injected into each TiddlyWiki page that loads
 		return path;
 	}
 
+	var injectedConvertUnicodeToFileFormat = function(s) {
+		return s;
+	}
+
 	window.mozillaSaveFile = injectedSaveFile;
 	window.mozillaLoadFile = injectedLoadFile;
 	window.convertUriToUTF8 = injectedConvertUriToUTF8;
+	window.convertUnicodeToFileFormat = injectedConvertUnicodeToFileFormat;
 
 })();
