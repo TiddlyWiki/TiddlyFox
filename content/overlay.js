@@ -47,9 +47,9 @@ var TiddlyFox = {
 		if(approved) {
 			// Save the approval for next time
 			storage.setItem("TiddlyFoxApproved_" + doc.location,"approved");
-			TiddlyFox.injectScript(doc); // Always inject the script
+			TiddlyFox.injectMessageBox(doc); // Always inject the message box
 			if(isTiddlyWikiClassic) {
-				TiddlyFox.injectMessageBox(doc); // Only inject the message box for TW classic
+				TiddlyFox.injectScript(doc); // Only inject the script for TiddlyWiki classic
 			}
 		}
 	},
