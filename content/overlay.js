@@ -6,6 +6,9 @@ The JavaScript code in this file is executed via `overlay.xul` when Firefox star
 
 var TiddlyFox = {
 
+	// Name of the permission for TiddlyFox used by Firefox
+	TIDDLYFOX_PERMISSION: "tiddlyfox.saving.permission",
+
 	// Called when the main browser has loaded
 	onLoad: function(event) {
 		// Register a page load event
@@ -21,32 +24,25 @@ var TiddlyFox = {
 
 	// Called each time a page loads
 	onPageLoad: function(event) {
-		// Get the document and window
+		// Get the document and window and uri
 		var doc = event.originalTarget,
-			win = doc.defaultView;
-		// Get a reference to local storage
-		var url = "http://127.0.0.1",
-			ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService),
-			ssm = Components.classes["@mozilla.org/scriptsecuritymanager;1"].getService(Components.interfaces.nsIScriptSecurityManager),
-			dsm = Components.classes["@mozilla.org/dom/storagemanager;1"].getService(Components.interfaces.nsIDOMStorageManager),
-			uri = ios.newURI(url,"",null),
-			principal = ssm.getCodebasePrincipal(uri),
-			storage = dsm.getLocalStorageForPrincipal(principal,"");
+			win = doc.defaultView,
+			uri = doc.location.toString();
 		// Check if this is a TiddlyWiki document
 		var isTiddlyWikiClassic = TiddlyFox.isTiddlyWikiClassic(doc,win),
 			isTiddlyWiki5 = TiddlyFox.isTiddlyWiki5(doc,win),
 			approved = false;
 		// Prompt the user if they haven't already approved this document
 		if(isTiddlyWikiClassic || isTiddlyWiki5) {
-			if(storage.getItem("TiddlyFoxApproved_" + doc.location) === "approved") {
+			if(checkPermission(uri)) {
 				approved = true;
 			} else {
-				approved = confirm("TiddlyFox: Do you want to enable TiddlyWiki file saving capability for " + doc.location);
+				approved = confirm("TiddlyFox: Do you want to enable TiddlyWiki file saving capability for " + uri);
 			}
 		}
 		if(approved) {
 			// Save the approval for next time
-			storage.setItem("TiddlyFoxApproved_" + doc.location,"approved");
+			setPermission(uri);
 			TiddlyFox.injectMessageBox(doc); // Always inject the message box
 			if(isTiddlyWikiClassic) {
 				TiddlyFox.injectScript(doc); // Only inject the script for TiddlyWiki classic
@@ -146,6 +142,21 @@ var TiddlyFox = {
 	}
 
 };
+
+function checkPermission(uri) {
+	var pm = Components.classes["@mozilla.org/permissionmanager;1"].createInstance(Components.interfaces.nsIPermissionManager);
+	return pm.testExactPermission(makeURI(uri),TiddlyFox.TIDDLYFOX_PERMISSION);
+}
+
+function setPermission(uri) {
+	var pm = Components.classes["@mozilla.org/permissionmanager;1"].createInstance(Components.interfaces.nsIPermissionManager);
+	pm.add(makeURI(uri),TiddlyFox.TIDDLYFOX_PERMISSION,pm.ALLOW_ACTION);
+}
+
+function makeURI(uri) {
+	var ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+	return ios.newURI(uri,null,null);
+}
 
 window.addEventListener("load",function load(event) {
 	window.removeEventListener("load",load,false);
