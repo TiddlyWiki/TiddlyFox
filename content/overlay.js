@@ -27,7 +27,7 @@ var TiddlyFox = {
 		// Get the document and window and uri
 		var doc = event.originalTarget,
 			win = doc.defaultView,
-			uri = doc.location.toString();
+			uri = TiddlyFox.getPageUri(doc);
 		// Check if this is a TiddlyWiki document
 		var isTiddlyWikiClassic = TiddlyFox.isTiddlyWikiClassic(doc,win),
 			isTiddlyWiki5 = TiddlyFox.isTiddlyWiki5(doc,win),
@@ -48,6 +48,10 @@ var TiddlyFox = {
 				TiddlyFox.injectScript(doc); // Only inject the script for TiddlyWiki classic
 			}
 		}
+	},
+
+	getPageUri: function(doc) {
+		return doc.location.protocol + "//" + doc.location.host + doc.location.pathname;
 	},
 
 	injectScript: function(doc) {
