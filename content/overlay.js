@@ -113,6 +113,11 @@ var TiddlyFox = {
 		TiddlyFox.saveFile(path,content);
 		// Remove the message element from the message box
 		message.parentNode.removeChild(message);
+		// Send a confirmation message
+		var event = document.createEvent("Events");
+		event.initEvent("tiddlyfox-have-saved-file",true,false);
+		event.savedFilePath = path;
+		message.dispatchEvent(event);
 		return false;
 	},
 
