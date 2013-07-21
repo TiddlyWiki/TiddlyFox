@@ -153,33 +153,13 @@ var TiddlyFox = {
 };
 
 function checkPermission(uri) {
-	if(isLocalStorageAvailable()) {
-		var ssm = Components.classes["@mozilla.org/scriptsecuritymanager;1"].getService(Components.interfaces.nsIScriptSecurityManager),
-    		dsm = Components.classes["@mozilla.org/dom/storagemanager;1"].getService(Components.interfaces.nsIDOMStorageManager),
-			principal = ssm.getCodebasePrincipal(makeURI(uri)),
-			storage = dsm.getLocalStorageForPrincipal(principal,"");
-    	return storage.getItem("TiddlyFoxApproved_" + uri) === "approved";
-	} else {
-		var pm = Components.classes["@mozilla.org/permissionmanager;1"].createInstance(Components.interfaces.nsIPermissionManager);
-		return pm.testExactPermission(makeURI(uri),TiddlyFox.TIDDLYFOX_PERMISSION);
-	}
+	var pm = Components.classes["@mozilla.org/permissionmanager;1"].createInstance(Components.interfaces.nsIPermissionManager);
+	return pm.testExactPermission(makeURI(uri),TiddlyFox.TIDDLYFOX_PERMISSION);
 }
 
 function setPermission(uri) {
-	if(isLocalStorageAvailable()) {
-		var ssm = Components.classes["@mozilla.org/scriptsecuritymanager;1"].getService(Components.interfaces.nsIScriptSecurityManager),
-    		dsm = Components.classes["@mozilla.org/dom/storagemanager;1"].getService(Components.interfaces.nsIDOMStorageManager),
-			principal = ssm.getCodebasePrincipal(makeURI(uri)),
-			storage = dsm.getLocalStorageForPrincipal(principal,"");
-		storage.setItem("TiddlyFoxApproved_" + uri,"approved");
-	} else {
-		var pm = Components.classes["@mozilla.org/permissionmanager;1"].createInstance(Components.interfaces.nsIPermissionManager);
-		pm.add(makeURI(uri),TiddlyFox.TIDDLYFOX_PERMISSION,pm.ALLOW_ACTION,pm.EXPIRE_NEVER,0);
-	}
-}
-
-function isLocalStorageAvailable() {
-	return !!Components.classes["@mozilla.org/dom/storagemanager;1"];
+	var pm = Components.classes["@mozilla.org/permissionmanager;1"].createInstance(Components.interfaces.nsIPermissionManager);
+	pm.add(makeURI(uri),TiddlyFox.TIDDLYFOX_PERMISSION,pm.ALLOW_ACTION,pm.EXPIRE_NEVER,0);
 }
 
 function makeURI(uri) {
