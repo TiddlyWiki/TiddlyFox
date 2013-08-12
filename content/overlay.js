@@ -153,13 +153,21 @@ var TiddlyFox = {
 };
 
 function checkPermission(uri) {
-	var pm = Components.classes["@mozilla.org/permissionmanager;1"].createInstance(Components.interfaces.nsIPermissionManager);
-	return pm.testExactPermission(makeURI(uri),TiddlyFox.TIDDLYFOX_PERMISSION);
+	try {
+		var pm = Components.classes["@mozilla.org/permissionmanager;1"].createInstance(Components.interfaces.nsIPermissionManager);
+		return pm.testExactPermission(makeURI(uri),TiddlyFox.TIDDLYFOX_PERMISSION);
+	} catch(e) {
+		return false;
+	}
 }
 
 function setPermission(uri) {
-	var pm = Components.classes["@mozilla.org/permissionmanager;1"].createInstance(Components.interfaces.nsIPermissionManager);
-	pm.add(makeURI(uri),TiddlyFox.TIDDLYFOX_PERMISSION,pm.ALLOW_ACTION,pm.EXPIRE_NEVER,0);
+	try {
+		var pm = Components.classes["@mozilla.org/permissionmanager;1"].createInstance(Components.interfaces.nsIPermissionManager);
+		pm.add(makeURI(uri),TiddlyFox.TIDDLYFOX_PERMISSION,pm.ALLOW_ACTION,pm.EXPIRE_NEVER,0);
+	} catch(e) {
+		
+	}
 }
 
 function makeURI(uri) {
