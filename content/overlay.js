@@ -135,7 +135,7 @@ var TiddlyFox = {
 		var versionArea = doc.getElementById("versionArea");
 		return (doc.location.protocol === "file:") &&
 			doc.getElementById("storeArea") &&
-			(versionArea && /TiddlyWiki/.test(versionArea.text));
+			(versionArea && /TiddlyWiki/.test(versionArea.textContent));
 	},
 
 	isTiddlyWiki5: function(doc,win) {
