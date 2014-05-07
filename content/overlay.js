@@ -3,7 +3,7 @@
 The JavaScript code in this file is executed via `overlay.xul` when Firefox starts up.
 
 */
-
+var TiddlyFox = (function () {
 var TiddlyFox = {
 
 	// Name of the permission for TiddlyFox used by Firefox
@@ -179,3 +179,5 @@ window.addEventListener("load",function load(event) {
 	window.removeEventListener("load",load,false);
 	TiddlyFox.onLoad(event);
 },false); 
+return TiddlyFox;
+}());
