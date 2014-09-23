@@ -346,7 +346,7 @@ getBackupFile: function(localPath,onceaday) {
 		if (tw2) 
 			TiddlyFox.saveFile(path,content);
 		else  
-			TiddlyFox.saveFile(path,content,"../backup",true);
+			TiddlyFox.saveFile(path,content,"backup",true);
 		message.parentNode.removeChild(message);
 		// Send a confirmation message
 		var event = document.createEvent("Events");
