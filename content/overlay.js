@@ -4,6 +4,10 @@ The JavaScript code in this file is executed via `overlay.xul` when Firefox star
 
 */
 var TiddlyFox = (function () {
+/*
+ * note that Date is not a 'real' object so you cannot extend it
+ * so instead we wrap it 
+ */
 var util = {
 	
 	Date : function () {
@@ -20,14 +24,9 @@ var util = {
 ["getUTCDate","getUTCFullYear","getUTCMonth","getUTCDay","getUTCHours","getUTCMinutes","getUTCSeconds","getUTCMilliseconds"].forEach(util.CreateAPI);
 ["getTime","getTimezoneOffset"].forEach(util.CreateAPI);
 
-
 // ---------------------------------------------------------------------------------
 // Start of Utility functions copied from TiddlyWiki.
 // ---------------------------------------------------------------------------------
-
-
-
-
 
 var zeroPad = function(n,d)
 {
@@ -48,9 +47,6 @@ util.Date.prototype.convertToYYYYMMDDHHMMSSMMM = function()
 {
 	return(zeroPad(this.getUTCFullYear(),4) + zeroPad(this.getUTCMonth()+1,2) + zeroPad(this.getUTCDate(),2) + "." + zeroPad(this.getUTCHours(),2) + zeroPad(this.getUTCMinutes(),2) + zeroPad(this.getUTCSeconds(),2) + zeroPad(this.getUTCMilliseconds(),4));
 }
-
-
-
 
 // Convert a date to UTC YYYY-MM-DD HH:MM string format
 util.Date.prototype.convertToFullDate = function()
@@ -264,28 +260,23 @@ var TiddlyFox = {
 		// Attach the event handler to the message box
 		messageBox.addEventListener("tiddlyfox-save-file",TiddlyFox.onSaveFile,false);
 	},
- copyFile: function(sourcefile,destdir)
-{
-  // get a component for the file to copy
-  var aFile = Components.classes["@mozilla.org/file/local;1"]
-    .createInstance(Components.interfaces.nsILocalFile);
-  if (!aFile) return false;
+	moveFile: function(sourcefile,destdir,onceaday) {
+		  var aFile = Components.classes["@mozilla.org/file/local;1"]
+			.createInstance(Components.interfaces.nsILocalFile);
+		  if (!aFile) return false;
 
-  // get a component for the directory to copy to
-  var aDir = Components.classes["@mozilla.org/file/local;1"]
-    .createInstance(Components.interfaces.nsILocalFile);
-  if (!aDir) return false;
+		  var aDir = Components.classes["@mozilla.org/file/local;1"]
+			.createInstance(Components.interfaces.nsILocalFile);
+		  if (!aDir) return false;
+		  
+		  aFile.initWithPath(sourcefile);
+		  aDir.initWithPath(TiddlyFox.getBackupPath(sourcefile,destdir));
 
-  // next, assign URLs to the file components
-  aFile.initWithPath(sourcefile);
-  aDir.initWithPath(TiddlyFox.getSpecialBackupPath(sourcefile));
+		  
+		  aFile.moveTo(aDir,TiddlyFox.getBackupFile(sourcefile,onceaday));
+	},
 
-  // finally, copy the file
-  
-  aFile.copyTo(aDir,TiddlyFox.getSpecialBackupFile(sourcefile));
-},
-
-	saveFile: function(filePath,content) {
+	saveFile: function(filePath,content,destdir,onceaday) {
 		// Attempt to convert the filepath to a proper UTF-8 string
 		try {
 			var converter = Components.classes["@mozilla.org/intl/utf8converterservice;1"].getService(Components.interfaces.nsIUTF8ConverterService);
@@ -294,7 +285,8 @@ var TiddlyFox = {
 		}
 		// Save the file
 		try {
-			TiddlyFox.copyFile(filePath,"/media/3497f82e-3b95-41de-90af-df905eceeab4/data/radice/firefoxextension/Tw516/plugins/etc");
+			if (destdir) 
+				TiddlyFox.moveFile(filePath,destdir,onceaday);
 			var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
 			file.initWithPath(filePath);
 
@@ -314,20 +306,20 @@ var TiddlyFox = {
 		}
 	},
 
-getSpecialBackupPath: function(localPath) {
+getBackupPath: function(localPath,destdir) {
 	var slash = "\\";
 	var dirPathPos = localPath.lastIndexOf("\\");
 	if(dirPathPos == -1) {
 		dirPathPos = localPath.lastIndexOf("/");
 		slash = "/";
 	}
-	var backupFolder = "backups";//config.options.txtBackupFolder;
+	var backupFolder = destdir;//config.options.txtBackupFolder;
 	if(!backupFolder || backupFolder == "")
 		backupFolder = ".";
-	backupFolder=localPath.substr(0,dirPathPos) + slash + backupFolder;alert(backupFolder);
+	backupFolder=localPath.substr(0,dirPathPos) + slash + backupFolder;
 	return backupFolder;
 },
-getSpecialBackupFile: function(localPath) {
+getBackupFile: function(localPath,onceaday) {
 	var slash = "\\";
 	var dirPathPos = localPath.lastIndexOf("\\");
 	if(dirPathPos == -1) {
@@ -336,11 +328,10 @@ getSpecialBackupFile: function(localPath) {
 	} 
 	var backupPath = localPath.substr(dirPathPos+1);
 	backupPath = backupPath.substr(0,backupPath.lastIndexOf(".")) + ".";
-        //if (config.options.chkOneADayBackUpFile==true)
+        if (onceaday)
 	        backupPath += (new util.Date()).convertToYYYYMMDDHHMMSSMMM().replace (/(.*)\.(.*)/,"$1") + "." + "html";
-        //else 
-	     //   backupPath += (new Date()).convertToYYYYMMDDHHMMSSMMM() + "." + "html";
-	     alert(backupPath);
+        else 
+	        backupPath += (new util.Date()).convertToYYYYMMDDHHMMSSMMM() + "." + "html";
 	return backupPath;
 },
 	onSaveFile: function(event) {
@@ -348,8 +339,10 @@ getSpecialBackupFile: function(localPath) {
 		var message = event.target,
 			path = message.getAttribute("data-tiddlyfox-path"),
 			content = message.getAttribute("data-tiddlyfox-content");
+			backupdir = message.getAttribute("data-tiddlyfox-backupdir"),
+			onceaday = message.getAttribute("data-tiddlyfox-onceaday");
 		// Save the file
-		TiddlyFox.saveFile(path,content);
+		TiddlyFox.saveFile(path,content,"../backup",true);
 		// Remove the message element from the message box
 		message.parentNode.removeChild(message);
 		// Send a confirmation message
@@ -415,8 +408,5 @@ window.addEventListener("load",function load(event) {
 	TiddlyFox.onLoad(event);
 },false); 
 return TiddlyFox;
-
-
-
 
 }());
