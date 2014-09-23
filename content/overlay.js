@@ -338,12 +338,15 @@ getBackupFile: function(localPath,onceaday) {
 		// Get the details from the message
 		var message = event.target,
 			path = message.getAttribute("data-tiddlyfox-path"),
-			content = message.getAttribute("data-tiddlyfox-content");
+			content = message.getAttribute("data-tiddlyfox-content"),
 			backupdir = message.getAttribute("data-tiddlyfox-backupdir"),
-			onceaday = message.getAttribute("data-tiddlyfox-onceaday");
+			onceaday = message.getAttribute("data-tiddlyfox-onceaday"),
+			tw2 =message.getAttribute("data-tiddlyfox-tw2");
 		// Save the file
-		TiddlyFox.saveFile(path,content,"../backup",true);
-		// Remove the message element from the message box
+		if (tw2) 
+			TiddlyFox.saveFile(path,content);
+		else  
+			TiddlyFox.saveFile(path,content,"../backup",true);
 		message.parentNode.removeChild(message);
 		// Send a confirmation message
 		var event = document.createEvent("Events");
