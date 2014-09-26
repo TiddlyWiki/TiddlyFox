@@ -15,6 +15,7 @@ The JavaScript in this file is injected into each TiddlyWiki page that loads
 			var message = document.createElement("div");
 			message.setAttribute("data-tiddlyfox-path",path);
 			message.setAttribute("data-tiddlyfox-content",content);
+			message.setAttribute("data-tiddlyfox-tw2","true");
 			messageBox.appendChild(message);
 			// Create and dispatch the custom event to the extension
 			var event = document.createEvent("Events");
