@@ -1,0 +1,3 @@
+<!ENTITY title.label "TiddlyFox">
+<!ENTITY separate.label "TiddlyFox is a Firefox extension to enable TiddlyWiki to save changes to the local file system.">
+<!ENTITY close.label "Close">
