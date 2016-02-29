@@ -9,4 +9,9 @@
     <menuitem id="tiddlyfox-hello" label="&tiddlyfox;" 
               oncommand="TiddlyFox.onMenuItemCommand(event);"/>
   </menupopup>
+  <!-- for SeaMonkey -->
+  <menupopup id="taskPopup">
+    <menuitem id="tiddlyfox-hello" label="&tiddlyfox;" 
+              oncommand="TiddlyFox.onMenuItemCommand(event);"/>
+  </menupopup>
 </overlay>
