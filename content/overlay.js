@@ -80,8 +80,20 @@ var TiddlyFox = {
 		// Attach the event handler to the message box
 		messageBox.addEventListener("tiddlyfox-save-file",TiddlyFox.onSaveFile,false);
 	},
+	
+	moveFile: function(sourcefile,destdir,destfile) {
+		  var file = Components.classes["@mozilla.org/file/local;1"]
+				.createInstance(Components.interfaces.nsILocalFile);
+		  file.initWithPath(sourcefile);
+		  
+		  var dir = Components.classes["@mozilla.org/file/local;1"]
+				.createInstance(Components.interfaces.nsILocalFile);
+		  dir.initWithPath(destdir);
 
-	saveFile: function(filePath,content) {
+		  file.moveTo(dir,destfile);
+	},
+
+	saveFile: function(filePath,content,destdir,destfile) {
 		// Attempt to convert the filepath to a proper UTF-8 string
 		try {
 			var converter = Components.classes["@mozilla.org/intl/utf8converterservice;1"].getService(Components.interfaces.nsIUTF8ConverterService);
@@ -90,6 +102,9 @@ var TiddlyFox = {
 		}
 		// Save the file
 		try {
+			if (destdir) {
+				TiddlyFox.moveFile(filePath,destdir,destfile);
+			}
 			var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
 			file.initWithPath(filePath);
 			if(!file.exists())
@@ -112,10 +127,17 @@ var TiddlyFox = {
 		// Get the details from the message
 		var message = event.target,
 			path = message.getAttribute("data-tiddlyfox-path"),
-			content = message.getAttribute("data-tiddlyfox-content");
+			content = message.getAttribute("data-tiddlyfox-content"),
+			backupdir = message.getAttribute("data-tiddlyfox-backupdir"),
+			backupfile = message.getAttribute("data-tiddlyfox-backupfile"),
+			tw2 = message.getAttribute("data-tiddlyfox-tw2");
 		// Save the file
-		TiddlyFox.saveFile(path,content);
-		// Remove the message element from the message box
+		if (tw2) {
+			TiddlyFox.saveFile(path,content);
+		}
+		else {
+			TiddlyFox.saveFile(path,content,backupdir,backupfile);
+		}
 		message.parentNode.removeChild(message);
 		// Send a confirmation message
 		var event = document.createEvent("Events");
