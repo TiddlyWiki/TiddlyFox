@@ -6,4 +6,5 @@
   "author": "Jeremy Ruston",
   "license": "BSD",
   "version": "2.0.2-prerelease",
+  "permissions": {"private-browsing": true}
 }
