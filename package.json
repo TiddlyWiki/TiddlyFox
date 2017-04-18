@@ -5,5 +5,5 @@
   "description": "The official TiddlyWiki extension for Firefox. Subject to explicit user permission, it enables TiddlyWiki to save changes directly to the file system",
   "author": "Jeremy Ruston",
   "license": "BSD",
-  "version": "2.0.1"
+  "version": "2.0.2-prerelease",
 }
