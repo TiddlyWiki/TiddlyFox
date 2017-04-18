@@ -21,6 +21,13 @@ cd {tiddlywiki for firefox directory}
 jpm run
 ```
 
+To use Firefox Developer Edition:
+
+```
+cd {tiddlywiki for firefox directory}
+jpm run -b "/Applications/FirefoxDeveloperEdition.app/Contents/MacOS/firefox"
+```
+
 To build the TiddlyWiki for Firefox XPI file:
 
 ```
