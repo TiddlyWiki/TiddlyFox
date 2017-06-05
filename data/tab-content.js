@@ -123,4 +123,19 @@ self.port.on("mark-duplicate",function(message) {
 	},false);
 });
 
+/*
+** Set up handler for displaying the saving prompt
+*/
+self.port.on("prompt-saving",function(message) {
+	var div = document.createElement("div");
+	div.innerHTML = message.html;
+	div.style = "position: fixed; left: 0; top: 0; right: 0; color: #000; background: #00ca00; border: 4px solid #000; text-align: center; margin: 8px 15%; z-index: 10000;";
+	document.body.appendChild(div);
+	div.addEventListener("click",function(event) {
+		if(((event.target || {}).tagName || "").toUpperCase() !== "A") {
+			document.body.removeChild(div);			
+		}
+	},false);
+});
+
 })();
